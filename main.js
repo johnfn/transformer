@@ -41,6 +41,8 @@ var Buffer = (function () {
         tempBuffer.context.restore();
         return tempBuffer;
     };
+    Buffer.prototype.scale = function (about, point) {
+    };
     Buffer.prototype.renderToContext = function (target, point) {
         target.drawImage(this.canvas, point.x, point.y);
     };

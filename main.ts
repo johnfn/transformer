@@ -66,6 +66,10 @@ class Buffer {
     return tempBuffer;
   }
 
+  scale(about: { x: number, y: number }, point: { x: number, y: number }): Buffer {
+
+  }
+
   renderToContext(target: CanvasRenderingContext2D, point: { x: number, y: number }): void {
     target.drawImage(this.canvas, point.x, point.y);
   }
@@ -81,6 +85,5 @@ setInterval(() => {
   globalContext.clearRect(0, 0, 500, 500);
 
   const newBuff = buff.rotate({ x: 150, y: 150 }, i += 5);
-
   newBuff.renderToContext(globalContext, { x: 0, y: 0 });
 }, 10);

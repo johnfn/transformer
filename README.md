@@ -1,8 +1,7 @@
-# Rect Covering
+# The Great Transformer
 
-Defines a shape which can be any arbitrary polygon drawn with straight lines.
+HTML5 Canvas is nice because it allows you to rotate and scale.
 
-Defines two functions:
+HTML5 Canvas is dumb because it doesn't allow you to rotate and scale about any point but (0, 0).
 
-* **addRect** - Add a rectangular area to the shape.
-* **subtractRect** - Remove a rectangular area from the shape.
+That's where The Great Transformer comes in!
