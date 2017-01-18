@@ -32,11 +32,25 @@ var Buffer = (function () {
         this.context.fillRect(x, y, w, h);
         this.context.fillStyle = oldFillStyle;
     };
-    Buffer.prototype.renderToContext = function (target) {
-        target.drawImage(this.canvas, 0, 0);
+    Buffer.prototype.rotate = function (about, degrees) {
+        var tempBuffer = new Buffer(this.width, this.height);
+        tempBuffer.context.save();
+        tempBuffer.context.translate(about.x, about.y);
+        tempBuffer.context.rotate(degrees * Math.PI / 180);
+        this.renderToContext(tempBuffer.context, { x: -about.x, y: -about.y });
+        tempBuffer.context.restore();
+        return tempBuffer;
+    };
+    Buffer.prototype.renderToContext = function (target, point) {
+        target.drawImage(this.canvas, point.x, point.y);
     };
     return Buffer;
 }());
 var buff = new Buffer(500, 500);
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
-buff.renderToContext(globalContext);
+var i = 0;
+setInterval(function () {
+    globalContext.clearRect(0, 0, 500, 500);
+    var newBuff = buff.rotate({ x: 150, y: 150 }, i += 5);
+    newBuff.renderToContext(globalContext, { x: 0, y: 0 });
+}, 10);

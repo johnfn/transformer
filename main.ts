@@ -52,12 +52,35 @@ class Buffer {
     this.context.fillStyle = oldFillStyle;
   }
 
-  renderToContext(target: CanvasRenderingContext2D): void {
-    target.drawImage(this.canvas, 0, 0);
+  rotate(about: { x: number, y: number }, degrees: number): Buffer {
+    const tempBuffer = new Buffer(this.width, this.height);
+
+    tempBuffer.context.save();
+    tempBuffer.context.translate(about.x, about.y);
+    tempBuffer.context.rotate(degrees * Math.PI / 180);
+
+    this.renderToContext(tempBuffer.context, { x: -about.x, y: -about.y });
+
+    tempBuffer.context.restore();
+
+    return tempBuffer;
+  }
+
+  renderToContext(target: CanvasRenderingContext2D, point: { x: number, y: number }): void {
+    target.drawImage(this.canvas, point.x, point.y);
   }
 }
 
 const buff = new Buffer(500, 500);
 
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
-buff.renderToContext(globalContext);
+
+let i = 0;
+
+setInterval(() => {
+  globalContext.clearRect(0, 0, 500, 500);
+
+  const newBuff = buff.rotate({ x: 150, y: 150 }, i += 5);
+
+  newBuff.renderToContext(globalContext, { x: 0, y: 0 });
+}, 10);
