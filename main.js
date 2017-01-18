@@ -37,6 +37,7 @@ var Buffer = (function () {
         this.context.fillStyle = oldFillStyle;
     };
     Buffer.prototype.rotate = function (about, degrees) {
+        this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
         this.tempBuffer.context.save();
         this.tempBuffer.context.translate(about.x, about.y);
         this.tempBuffer.context.rotate(degrees * Math.PI / 180);
@@ -45,6 +46,7 @@ var Buffer = (function () {
         return this.tempBuffer;
     };
     Buffer.prototype.scale = function (about, amount) {
+        this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
         this.tempBuffer.context.save();
         this.tempBuffer.context.translate(about.x, about.y);
         this.tempBuffer.context.scale(amount.x, amount.y);
@@ -59,9 +61,9 @@ var Buffer = (function () {
 }());
 var buff = new Buffer(500, 500);
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
-var i = 1;
+var i = 0.3;
 setInterval(function () {
     globalContext.clearRect(0, 0, 500, 500);
-    var newBuff = buff.scale({ x: 100, y: 100 }, { x: i += 0.01, y: 1 });
+    var newBuff = buff.scale({ x: 100, y: 100 }, { x: i -= 0.01, y: 1 });
     newBuff.renderToContext(globalContext, { x: 0, y: 0 });
 }, 10);

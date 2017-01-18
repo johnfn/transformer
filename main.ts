@@ -58,6 +58,8 @@ class Buffer {
   }
 
   rotate(about: { x: number, y: number }, degrees: number): Buffer {
+    this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
+
     this.tempBuffer.context.save();
     this.tempBuffer.context.translate(about.x, about.y);
     this.tempBuffer.context.rotate(degrees * Math.PI / 180);
@@ -70,6 +72,8 @@ class Buffer {
   }
 
   scale(about: { x: number, y: number }, amount: { x: number, y: number }): Buffer {
+    this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
+
     this.tempBuffer.context.save();
     this.tempBuffer.context.translate(about.x, about.y);
     this.tempBuffer.context.scale(amount.x, amount.y);
@@ -90,12 +94,12 @@ const buff = new Buffer(500, 500);
 
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
 
-let i = 1;
+let i = 0.3;
 
 setInterval(() => {
   globalContext.clearRect(0, 0, 500, 500);
 
-  const newBuff = buff.scale({ x: 100, y: 100 }, { x: i += 0.01, y: 1 })
+  const newBuff = buff.scale({ x: 100, y: 100 }, { x: i -= 0.01, y: 1 })
 
   newBuff.renderToContext(globalContext, { x: 0, y: 0 });
 }, 10);
