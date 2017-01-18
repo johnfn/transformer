@@ -11,7 +11,7 @@ class Rect {
 }
 
 class Buffer {
-  tempBuffer: Buffer;
+  private static TempBuffer: Buffer;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   width: number;
@@ -42,8 +42,8 @@ class Buffer {
     // http://stackoverflow.com/questions/41372133/html5-canvas-fillrect-bleeding
     this.context.clearRect(0, 0, this.width, this.height);
 
-    if (!props || (props && !props.isTemporaryBuffer)) {
-      this.tempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
+    if (!Buffer.TempBuffer && (!props || props && props.isTemporaryBuffer === false)) {
+      Buffer.TempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
     }
   }
 
@@ -58,31 +58,31 @@ class Buffer {
   }
 
   rotate(about: { x: number, y: number }, degrees: number): Buffer {
-    this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
+    Buffer.TempBuffer.context.clearRect(0, 0, Buffer.TempBuffer.width, Buffer.TempBuffer.height);
 
-    this.tempBuffer.context.save();
-    this.tempBuffer.context.translate(about.x, about.y);
-    this.tempBuffer.context.rotate(degrees * Math.PI / 180);
+    Buffer.TempBuffer.context.save();
+    Buffer.TempBuffer.context.translate(about.x, about.y);
+    Buffer.TempBuffer.context.rotate(degrees * Math.PI / 180);
 
-    this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
+    this.renderToContext(Buffer.TempBuffer.context, { x: -about.x, y: -about.y });
 
-    this.tempBuffer.context.restore();
+    Buffer.TempBuffer.context.restore();
 
-    return this.tempBuffer;
+    return Buffer.TempBuffer;
   }
 
   scale(about: { x: number, y: number }, amount: { x: number, y: number }): Buffer {
-    this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
+    Buffer.TempBuffer.context.clearRect(0, 0, Buffer.TempBuffer.width, Buffer.TempBuffer.height);
 
-    this.tempBuffer.context.save();
-    this.tempBuffer.context.translate(about.x, about.y);
-    this.tempBuffer.context.scale(amount.x, amount.y);
+    Buffer.TempBuffer.context.save();
+    Buffer.TempBuffer.context.translate(about.x, about.y);
+    Buffer.TempBuffer.context.scale(amount.x, amount.y);
 
-    this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
+    this.renderToContext(Buffer.TempBuffer.context, { x: -about.x, y: -about.y });
 
-    this.tempBuffer.context.restore();
+    Buffer.TempBuffer.context.restore();
 
-    return this.tempBuffer;
+    return Buffer.TempBuffer;
   }
 
   renderToContext(target: CanvasRenderingContext2D, point: { x: number, y: number }): void {

@@ -25,8 +25,8 @@ var Buffer = (function () {
         this.context.save();
         // http://stackoverflow.com/questions/41372133/html5-canvas-fillrect-bleeding
         this.context.clearRect(0, 0, this.width, this.height);
-        if (!props || (props && !props.isTemporaryBuffer)) {
-            this.tempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
+        if (!Buffer.TempBuffer && (!props || props && props.isTemporaryBuffer === false)) {
+            Buffer.TempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
         }
     }
     Buffer.prototype.drawRect = function (rect) {
@@ -37,22 +37,22 @@ var Buffer = (function () {
         this.context.fillStyle = oldFillStyle;
     };
     Buffer.prototype.rotate = function (about, degrees) {
-        this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
-        this.tempBuffer.context.save();
-        this.tempBuffer.context.translate(about.x, about.y);
-        this.tempBuffer.context.rotate(degrees * Math.PI / 180);
-        this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
-        this.tempBuffer.context.restore();
-        return this.tempBuffer;
+        Buffer.TempBuffer.context.clearRect(0, 0, Buffer.TempBuffer.width, Buffer.TempBuffer.height);
+        Buffer.TempBuffer.context.save();
+        Buffer.TempBuffer.context.translate(about.x, about.y);
+        Buffer.TempBuffer.context.rotate(degrees * Math.PI / 180);
+        this.renderToContext(Buffer.TempBuffer.context, { x: -about.x, y: -about.y });
+        Buffer.TempBuffer.context.restore();
+        return Buffer.TempBuffer;
     };
     Buffer.prototype.scale = function (about, amount) {
-        this.tempBuffer.context.clearRect(0, 0, this.tempBuffer.width, this.tempBuffer.height);
-        this.tempBuffer.context.save();
-        this.tempBuffer.context.translate(about.x, about.y);
-        this.tempBuffer.context.scale(amount.x, amount.y);
-        this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
-        this.tempBuffer.context.restore();
-        return this.tempBuffer;
+        Buffer.TempBuffer.context.clearRect(0, 0, Buffer.TempBuffer.width, Buffer.TempBuffer.height);
+        Buffer.TempBuffer.context.save();
+        Buffer.TempBuffer.context.translate(about.x, about.y);
+        Buffer.TempBuffer.context.scale(amount.x, amount.y);
+        this.renderToContext(Buffer.TempBuffer.context, { x: -about.x, y: -about.y });
+        Buffer.TempBuffer.context.restore();
+        return Buffer.TempBuffer;
     };
     Buffer.prototype.renderToContext = function (target, point) {
         target.drawImage(this.canvas, point.x, point.y);
