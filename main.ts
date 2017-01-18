@@ -11,12 +11,13 @@ class Rect {
 }
 
 class Buffer {
+  tempBuffer: Buffer;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   width: number;
   height: number;
 
-  constructor(width: number, height: number) {
+  constructor(width: number, height: number, props: undefined | { isTemporaryBuffer: boolean } = undefined) {
     this.canvas = document.createElement('canvas');
 
     this.width = width;
@@ -40,6 +41,10 @@ class Buffer {
 
     // http://stackoverflow.com/questions/41372133/html5-canvas-fillrect-bleeding
     this.context.clearRect(0, 0, this.width, this.height);
+
+    if (!props || (props && !props.isTemporaryBuffer)) {
+      this.tempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
+    }
   }
 
   drawRect(rect: Rect): void {
@@ -53,21 +58,27 @@ class Buffer {
   }
 
   rotate(about: { x: number, y: number }, degrees: number): Buffer {
-    const tempBuffer = new Buffer(this.width, this.height);
+    this.tempBuffer.context.save();
+    this.tempBuffer.context.translate(about.x, about.y);
+    this.tempBuffer.context.rotate(degrees * Math.PI / 180);
 
-    tempBuffer.context.save();
-    tempBuffer.context.translate(about.x, about.y);
-    tempBuffer.context.rotate(degrees * Math.PI / 180);
+    this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
 
-    this.renderToContext(tempBuffer.context, { x: -about.x, y: -about.y });
+    this.tempBuffer.context.restore();
 
-    tempBuffer.context.restore();
-
-    return tempBuffer;
+    return this.tempBuffer;
   }
 
-  scale(about: { x: number, y: number }, point: { x: number, y: number }): Buffer {
+  scale(about: { x: number, y: number }, amount: { x: number, y: number }): Buffer {
+    this.tempBuffer.context.save();
+    this.tempBuffer.context.translate(about.x, about.y);
+    this.tempBuffer.context.scale(amount.x, amount.y);
 
+    this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
+
+    this.tempBuffer.context.restore();
+
+    return this.tempBuffer;
   }
 
   renderToContext(target: CanvasRenderingContext2D, point: { x: number, y: number }): void {
@@ -79,11 +90,12 @@ const buff = new Buffer(500, 500);
 
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
 
-let i = 0;
+let i = 1;
 
 setInterval(() => {
   globalContext.clearRect(0, 0, 500, 500);
 
-  const newBuff = buff.rotate({ x: 150, y: 150 }, i += 5);
+  const newBuff = buff.scale({ x: 100, y: 100 }, { x: i += 0.01, y: 1 })
+
   newBuff.renderToContext(globalContext, { x: 0, y: 0 });
 }, 10);

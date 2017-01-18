@@ -7,7 +7,8 @@ var Rect = (function () {
     return Rect;
 }());
 var Buffer = (function () {
-    function Buffer(width, height) {
+    function Buffer(width, height, props) {
+        if (props === void 0) { props = undefined; }
         this.canvas = document.createElement('canvas');
         this.width = width;
         this.height = height;
@@ -24,6 +25,9 @@ var Buffer = (function () {
         this.context.save();
         // http://stackoverflow.com/questions/41372133/html5-canvas-fillrect-bleeding
         this.context.clearRect(0, 0, this.width, this.height);
+        if (!props || (props && !props.isTemporaryBuffer)) {
+            this.tempBuffer = new Buffer(this.width, this.height, { isTemporaryBuffer: true });
+        }
     }
     Buffer.prototype.drawRect = function (rect) {
         var x = rect.x, y = rect.y, w = rect.w, h = rect.h;
@@ -33,15 +37,20 @@ var Buffer = (function () {
         this.context.fillStyle = oldFillStyle;
     };
     Buffer.prototype.rotate = function (about, degrees) {
-        var tempBuffer = new Buffer(this.width, this.height);
-        tempBuffer.context.save();
-        tempBuffer.context.translate(about.x, about.y);
-        tempBuffer.context.rotate(degrees * Math.PI / 180);
-        this.renderToContext(tempBuffer.context, { x: -about.x, y: -about.y });
-        tempBuffer.context.restore();
-        return tempBuffer;
+        this.tempBuffer.context.save();
+        this.tempBuffer.context.translate(about.x, about.y);
+        this.tempBuffer.context.rotate(degrees * Math.PI / 180);
+        this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
+        this.tempBuffer.context.restore();
+        return this.tempBuffer;
     };
-    Buffer.prototype.scale = function (about, point) {
+    Buffer.prototype.scale = function (about, amount) {
+        this.tempBuffer.context.save();
+        this.tempBuffer.context.translate(about.x, about.y);
+        this.tempBuffer.context.scale(amount.x, amount.y);
+        this.renderToContext(this.tempBuffer.context, { x: -about.x, y: -about.y });
+        this.tempBuffer.context.restore();
+        return this.tempBuffer;
     };
     Buffer.prototype.renderToContext = function (target, point) {
         target.drawImage(this.canvas, point.x, point.y);
@@ -50,9 +59,9 @@ var Buffer = (function () {
 }());
 var buff = new Buffer(500, 500);
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
-var i = 0;
+var i = 1;
 setInterval(function () {
     globalContext.clearRect(0, 0, 500, 500);
-    var newBuff = buff.rotate({ x: 150, y: 150 }, i += 5);
+    var newBuff = buff.scale({ x: 100, y: 100 }, { x: i += 0.01, y: 1 });
     newBuff.renderToContext(globalContext, { x: 0, y: 0 });
 }, 10);
