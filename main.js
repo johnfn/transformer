@@ -54,6 +54,15 @@ var Buffer = (function () {
         Buffer.TempBuffer.context.restore();
         return Buffer.TempBuffer;
     };
+    Buffer.prototype.translate = function (amount) {
+        var id = this.context.getImageData(0, 0, 500, 500);
+        var newid = new ImageData(500, 500);
+        var datalen = id.data.length;
+        for (var i_1 = 0; i_1 < datalen - 1; i_1++) {
+            newid.data[i_1] = id.data[i_1 + 1];
+        }
+        this.context.putImageData(newid, 0, 0);
+    };
     Buffer.prototype.renderToContext = function (target, point) {
         target.drawImage(this.canvas, point.x, point.y);
     };
@@ -61,9 +70,9 @@ var Buffer = (function () {
 }());
 var buff = new Buffer(500, 500);
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
-var i = 0.3;
+var i = 0.0;
 setInterval(function () {
-    globalContext.clearRect(0, 0, 500, 500);
-    var newBuff = buff.scale({ x: 100, y: 100 }, { x: i -= 0.01, y: 1 });
-    newBuff.renderToContext(globalContext, { x: 0, y: 0 });
+    buff.renderToContext(globalContext, { x: 0, y: 0 });
+    // globalContext.clearRect(0, 0, 500, 500);
+    buff.translate({ x: 0, y: i++ });
 }, 10);

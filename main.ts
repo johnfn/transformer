@@ -34,7 +34,7 @@ class Buffer {
 
     this.context.mozImageSmoothingEnabled = false;
     this.context.webkitImageSmoothingEnabled = false;
-    this.context.msImageSmoothingEnabled = false;
+    (this.context as any).msImageSmoothingEnabled = false;
     (this.context as any).imageSmoothingEnabled = false;
 
     this.context.save();
@@ -85,6 +85,19 @@ class Buffer {
     return Buffer.TempBuffer;
   }
 
+  translate(amount: { x: number, y: number }): void {
+    const id = this.context.getImageData(0, 0, 500, 500);
+    const newid = new ImageData(500, 500);
+
+    const datalen = id.data.length;
+
+    for (let i = 0; i < datalen - 1; i++) {
+      newid.data[i] = id.data[i + 1];
+    }
+
+    this.context.putImageData(newid, 0, 0);
+  }
+
   renderToContext(target: CanvasRenderingContext2D, point: { x: number, y: number }): void {
     target.drawImage(this.canvas, point.x, point.y);
   }
@@ -94,12 +107,11 @@ const buff = new Buffer(500, 500);
 
 buff.drawRect({ x: 100, y: 100, w: 100, h: 100 });
 
-let i = 0.3;
+let i = 0.0;
 
 setInterval(() => {
-  globalContext.clearRect(0, 0, 500, 500);
+  buff.renderToContext(globalContext, { x: 0, y: 0 });
+  // globalContext.clearRect(0, 0, 500, 500);
 
-  const newBuff = buff.scale({ x: 100, y: 100 }, { x: i -= 0.01, y: 1 })
-
-  newBuff.renderToContext(globalContext, { x: 0, y: 0 });
+  buff.translate({ x: 0, y: i++ })
 }, 10);
